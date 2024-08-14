@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>YamaDB</title>
+<style>
+  main {
+    max-width: 38rem;
+    padding: 2rem;
+    margin: auto;
+  }
+  footer {
+    text-align: center;
+  }
+</style>
+<main>
+  <h1>YamaDB (beta)</h1>
+  <p>現在のレコード数: <span id="n">0</span></p>
+  <footer>&copy; 2024 <a href="https://yamad.me">YamaD</a></footer>
+</main>
+<script>
+  const e = document.getElementById("n")
+  const f = () =>
+    fetch("/meta/n")
+      .then(r => r.text())
+      .then(n => (e.innerText = n))
+  f()
+  setInterval(f, 10000)
+</script>
