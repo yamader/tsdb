@@ -11,11 +11,23 @@
   footer {
     text-align: center;
   }
+  iframe {
+    width: 100%;
+    height: min(45vw, 20rem);
+    border: 1px solid;
+    border-radius: .2rem;
+  }
 </style>
 <main>
   <h1>YamaDB (beta)</h1>
+  <hr>
   <p>現在のレコード数: <span id="n">0</span></p>
-  <footer>&copy; 2024 <a href="https://yamad.me">YamaD</a></footer>
+  <h2>部屋の気温</h2>
+  <iframe src="chart?q=myroom/t&max=35&min=10"></iframe>
+  <hr>
+  <footer>
+    <small>&copy; 2024 <a href="https://yamad.me">YamaD</a></small>
+  </footer>
 </main>
 <script>
   const e = document.getElementById("n")

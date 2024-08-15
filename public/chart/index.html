@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>YamaDB chart</title>
+<canvas id="chart"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@v3"></script>
+<script>
+  const params = new URLSearchParams(window.location.search)
+  const q = params.get("q")
+  if (!q) throw "fatal: q param not found"
+
+  const ds = Number(params.get("ds")) || 6 * 3600
+  const max = Number(params.get("max") || NaN)
+  const min = Number(params.get("min") || NaN)
+
+  window.chart = new Chart(document.getElementById("chart"), {
+    type: "line",
+    options: {
+      animation: { duration: 0 }, // https://github.com/chartjs/Chart.js/issues/11507#issuecomment-1732595419
+      scales: {
+        x: {
+          type: "time",
+          min: Date.now() - ds * 1000,
+        },
+        y: { max, min },
+      },
+      plugins: {
+        zoom: {
+          pan: { enabled: true },
+          zoom: {
+            wheel: { enabled: true },
+            pinch: { enabled: true },
+          },
+        },
+      },
+    },
+  })
+
+  async function f() {
+    const set = {}
+    const single = []
+
+    const res = await fetch("/" + q).then(r => r.json())
+    for (const [t, y] of res) {
+      if (typeof y != "object") {
+        single.push([t, y])
+        continue
+      }
+      for (const i in y) {
+        set[i] ||= []
+        set[i].push([t, y[i]])
+      }
+    }
+
+    chart.data.datasets = Object.keys(set).map(i => ({
+      label: i,
+      data: set[i],
+    }))
+    if (single.length) {
+      chart.data.datasets.push({
+        label: "y",
+        data: single,
+      })
+    }
+
+    chart.update()
+  }
+
+  f()
+  setInterval(f, 10000)
+</script>
